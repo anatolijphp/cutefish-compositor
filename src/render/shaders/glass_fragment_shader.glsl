@@ -18,6 +18,7 @@ uniform vec2 uAmbient;
 uniform float uSaturation;
 // Intensity, and one logical pixel in device pixels.
 uniform vec2 uRim;
+uniform float uRimFade;
 uniform vec4 uTint;
 // The lens within the quad, in device pixels; a client shape masks the quad.
 uniform vec4 uLens;
@@ -146,8 +147,11 @@ void shade() {
     // into a smudge, and a lit edge with nothing outside it reads as cut off.
     if (uRim.x > 0.0) {
         vec2 outward = outwardAt(insideLens(p, halfSize, r), halfSize, r);
-        // Surface-local y grows downwards, so the top faces -y.
-        float lit = abs(outward.y) * mix(1.0, 0.35, 0.5 + 0.5 * outward.y);
+        // Surface-local y grows downwards, so the top faces -y. With uRimFade
+        // the light comes from the left: the lit hairline is full at the left
+        // end and fades evenly toward the right.
+        float along = clamp((p.x + halfSize.x) / max(2.0 * halfSize.x, 1.0), 0.0, 1.0);
+        float lit = abs(outward.y) * mix(1.0, 0.35, 0.5 + 0.5 * outward.y) * (1.0 - along * uRimFade);
         float inset = -sd;
         // Three quarters and half a logical pixel, never thinner than a device pixel.
         float litWidth = max(0.75 * uRim.y, 1.0);

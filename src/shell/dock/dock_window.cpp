@@ -407,9 +407,12 @@ render::GlassParams DockWindow::glass() const
     // The dock's own tint and blur sliders; frosted, no lens.
     const DockSettings &settings = m_dock->settings();
     const bool dark = ui::Theme::current().darkMode;
-    if (GlassPreferences::instance().frosted())
-        return frostedTintedGlass(settings.glassTint(), dark);
-    return tintedGlass(settings.glassTint(), settings.glassBlur(), dark);
+    render::GlassParams glass = GlassPreferences::instance().frosted()
+            ? frostedTintedGlass(settings.glassTint(), dark)
+            : tintedGlass(settings.glassTint(), settings.glassBlur(), dark);
+    // The dock's rim is lit the same all along.
+    glass.rimFade = 0;
+    return glass;
 }
 
 std::vector<DockIcon *> DockWindow::icons() const

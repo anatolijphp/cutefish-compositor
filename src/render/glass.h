@@ -61,6 +61,10 @@ struct GlassParams {
     // bottom and shaded along the sides; when set it replaces the window
     // outline, which would otherwise stack on it.
     float rim = 0.0f;
+    // How much the rim's lit hairline fades from the left end to the right,
+    // as if lit from the left: 1 to nothing at the right end, 0 for the same
+    // light all along, as the dock has it.
+    float rimFade = 1.0f;
     float tintRed = 1.0f;
     float tintGreen = 1.0f;
     float tintBlue = 1.0f;
@@ -80,7 +84,7 @@ inline bool operator==(const GlassParams &a, const GlassParams &b)
             && a.shininess == b.shininess && a.sheen == b.sheen
             && a.ambientOcclusion == b.ambientOcclusion
             && a.ambientOcclusionRadius == b.ambientOcclusionRadius
-            && a.saturation == b.saturation && a.rim == b.rim && a.tintRed == b.tintRed
+            && a.saturation == b.saturation && a.rim == b.rim && a.rimFade == b.rimFade && a.tintRed == b.tintRed
             && a.tintGreen == b.tintGreen && a.tintBlue == b.tintBlue && a.tintAlpha == b.tintAlpha
             && a.opacity == b.opacity && a.plainSigma == b.plainSigma;
 }
