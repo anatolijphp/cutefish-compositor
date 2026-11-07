@@ -128,8 +128,10 @@ void DockTooltip::show(const std::string &text, const base::PointF &target, cons
     if (!popup)
         return;
     const render::GlassParams glass = shellGlass(GlassRole::Popup);
-    const base::Rect region(int(std::floor(body.x)), int(std::floor(body.y)), int(std::ceil(body.width)),
-                            int(std::ceil(body.height)));
+    // The lens spans the whole bubble, arrow included: past the lens a shape
+    // continues the lip, which on a clear lens shows as a grey arrow, so the
+    // arrow is the body's flat glass instead and the shape masks the outline.
+    const base::Rect region(0, 0, int(std::ceil(bubble.width)), int(std::ceil(bubble.height)));
     const double radius = std::min(bubble.radius, std::min(body.width, body.height) / 2);
     popup->setBackgroundBlur(region, int(std::lround(radius)), glass, bubble.path());
 }
