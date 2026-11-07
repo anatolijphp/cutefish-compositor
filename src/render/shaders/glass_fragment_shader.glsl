@@ -149,8 +149,10 @@ void shade() {
         vec2 outward = outwardAt(insideLens(p, halfSize, r), halfSize, r);
         // Surface-local y grows downwards, so the top faces -y. With uRimFade
         // the light comes from the left: the lit hairline is full at the left
-        // end and fades evenly toward the right.
-        float along = clamp((p.x + halfSize.x) / max(2.0 * halfSize.x, 1.0), 0.0, 1.0);
+        // end and fades evenly over the first 256 logical pixels, or over the
+        // whole width of a narrower surface, so a wide window's glare does
+        // not stretch across it.
+        float along = clamp((p.x + halfSize.x) / min(max(2.0 * halfSize.x, 1.0), 256.0 * uRim.y), 0.0, 1.0);
         float lit = abs(outward.y) * mix(1.0, 0.35, 0.5 + 0.5 * outward.y) * (1.0 - along * uRimFade);
         float inset = -sd;
         // Three quarters and half a logical pixel, never thinner than a device pixel.
