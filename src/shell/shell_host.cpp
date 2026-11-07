@@ -131,16 +131,42 @@ void ShellHost::blurChanged(ui::EmbeddedWindow *window)
     ShellWindow *shellWindow = windowFor(window);
     if (!shellWindow)
         return;
-    const ui::RectF rect = window->blurRect();
+    // FishUI's popups (menus, drop-downs) sit on the shell's glass, or on
+    // the glass their toplevel chose for them (the dock's own for its menus).
+    ShellWindow *toplevel = shellWindow;
+    while (toplevel->parent())
+        toplevel = toplevel->parent();
+    render::GlassParams glass = toplevel->popupGlass() ? *toplevel->popupGlass() : shellGlass(GlassRole::Popup);
+    const ui::Path &shape = window->blurShape();
+    ui::RectF rect = window->blurRect();
+    if (!shape.isEmpty()) {
+        // A bubble: the lens spans the whole outline, arrow included, since
+        // past the lens a shape only continues the lip; and no rim, which
+        // could follow only the lens's rounded rectangle and would keep the
+        // outline layer, which draws the bubble, back.
+        rect = shape.boundingRect();
+        glass.rim = 0;
+    }
     const int left = int(std::lround(rect.x));
     const int top = int(std::lround(rect.y));
-    // FishUI's popups (menus, drop-downs) sit on the shell's glass, outlined
-    // and masked by their bubble.
     m_glassKeys[window] = currentGlassKey();
     shellWindow->setBackgroundBlur(base::Rect(left, top, int(std::lround(rect.x + rect.width)) - left,
                                               int(std::lround(rect.y + rect.height)) - top),
-                                   int(std::lround(window->blurRadius())), shellGlass(GlassRole::Popup),
-                                   window->blurShape());
+                                   int(std::lround(window->blurRadius())), glass, shape);
+}
+
+void ShellHost::popupGlassChanged(ShellWindow *window)
+{
+    std::vector<ui::EmbeddedWindow *> popups;
+    for (const auto &[popup, key] : m_glassKeys) {
+        ShellWindow *toplevel = windowFor(popup);
+        while (toplevel && toplevel->parent())
+            toplevel = toplevel->parent();
+        if (toplevel == window)
+            popups.push_back(popup);
+    }
+    for (ui::EmbeddedWindow *popup : popups)
+        blurChanged(popup);
 }
 
 bool ShellHost::startDrag(ui::EmbeddedWindow *window, ui::DragSource source)

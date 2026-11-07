@@ -24,6 +24,7 @@
 #include "shell/dock/dock_tooltip.h"
 #include "shell/glass_preferences.h"
 #include "shell/shell_data.h"
+#include "shell/shell_host.h"
 #include "shell/shell_window.h"
 #include "ui/application.h"
 #include "ui/bubble_shape.h"
@@ -847,7 +848,12 @@ void DockWindow::updateGlass()
     const double radius = std::min(cornerRadius(),
                                    double(std::min(m_panelRect.width(), m_panelRect.height())) / 2);
     m_glassDark = ui::Theme::current().darkMode;
-    m_window->setBackgroundBlur(m_panelRect, int(std::lround(radius)), glass());
+    const render::GlassParams material = glass();
+    m_window->setBackgroundBlur(m_panelRect, int(std::lround(radius)), material);
+    // The dock's menus and tooltip are on the dock's own glass, by its own
+    // tint and blur sliders.
+    m_window->setPopupGlass(material);
+    m_shell->host()->popupGlassChanged(m_window.get());
 }
 
 void DockWindow::updateStrut()

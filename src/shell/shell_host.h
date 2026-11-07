@@ -46,6 +46,8 @@ public:
     void windowDestroying(ShellWindow *window);
     // Called by ShellWindow before it renders a frame; not part of the public API.
     void frameStarting(ShellWindow *window);
+    // Sends `window`'s popups their glass again after its popupGlass() changed.
+    void popupGlassChanged(ShellWindow *window);
 
     // ui::EmbeddedHost:
     void popupShown(ui::EmbeddedWindow *popup) override;

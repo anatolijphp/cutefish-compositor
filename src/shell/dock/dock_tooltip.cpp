@@ -127,10 +127,11 @@ void DockTooltip::show(const std::string &text, const base::PointF &target, cons
             m_shell->host()->windowFor(static_cast<ui::EmbeddedWindow *>(m_window.get()));
     if (!popup)
         return;
-    // No rim: a rim can only follow the lens's rounded rectangle, and with
-    // one the outline layer stands back; without it that layer draws the
-    // bubble's outline, arrow included.
-    render::GlassParams glass = shellGlass(GlassRole::Popup);
+    // The dock's own glass, by its tint and blur sliders. No rim: a rim can
+    // only follow the lens's rounded rectangle, and with one the outline
+    // layer stands back; without it that layer draws the bubble's outline,
+    // arrow included.
+    render::GlassParams glass = m_dock->glass();
     glass.rim = 0;
     // The lens spans the whole bubble, arrow included: past the lens a shape
     // continues the lip, which on a clear lens shows as a grey arrow, so the

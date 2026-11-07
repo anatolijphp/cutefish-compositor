@@ -87,6 +87,12 @@ public:
     wm::Window *wmWindow() const;
     wm::WindowRole role() const { return m_metadata.role; }
     bool isPopup() const { return m_parent != nullptr; }
+    // The window a popup is placed under; null for a toplevel.
+    ShellWindow *parent() const { return m_parent; }
+    // The glass this window's popups and their popups get instead of the
+    // shell's, such as the dock's own for its menus; see ShellHost::blurChanged.
+    void setPopupGlass(std::optional<render::GlassParams> glass) { m_popupGlass = std::move(glass); }
+    const std::optional<render::GlassParams> &popupGlass() const { return m_popupGlass; }
 
     // --- What cutefish_shell_surface_v1 says, applied at once ---
 
@@ -215,6 +221,7 @@ private:
 
     Shell *m_shell;
     ShellWindow *m_parent = nullptr;
+    std::optional<render::GlassParams> m_popupGlass;
     std::vector<ShellWindow *> m_popups;
     ui::EmbeddedWindow *m_window = nullptr;
     // Null for a popup, whose window the toolkit owns.
