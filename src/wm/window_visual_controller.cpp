@@ -28,7 +28,11 @@ void setShellOutlineColors(scene::WindowVisualState &state, const Window &window
         state.highlightColor = {0, 0, 0, 0};
         return;
     }
-    const bool dock = window.role() == WindowRole::Dock;
+    // The dock's menus and tooltip are outlined as the dock is.
+    const Window *root = &window;
+    while (root->transientParent())
+        root = root->transientParent();
+    const bool dock = root->role() == WindowRole::Dock;
     state.outlineColor = dock ? style.dockOutline : style.shellOutline;
     state.highlightColor = dock ? style.dockHighlight : style.highlight;
 }
